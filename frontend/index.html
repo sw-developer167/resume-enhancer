@@ -68,7 +68,7 @@
       result.innerHTML = "<p><em>Analyzing resume... Please wait.</em></p>";
 
       try {
-        const res = await fetch('http://127.0.0.1:5000/analyze', {
+        const res = await fetch('https://resume-enhancer-i2we.onrender.com/analyze', {
           method: 'POST',
           body: formData
         });
