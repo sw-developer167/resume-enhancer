@@ -1,0 +1,16 @@
+# Python virtual environment
+venv/
+__pycache__/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+
+# IDE configs
+.vscode/
+
+# Uploads
+*.pdf
+*.docx

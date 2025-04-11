@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Resume Analyzer (GPT Style)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      max-width: 900px;
+    }
+    textarea, input {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #0C2340;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    h3, h4 {
+      margin-top: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #eee;
+    }
+    .success { color: green; }
+    .missing { color: red; }
+  </style>
+</head>
+<body>
+
+  <h2>🧠 Resume vs Job Description Analyzer</h2>
+  <form id="matchForm">
+    <label><strong>Paste Job Description:</strong></label>
+    <textarea name="job_description" rows="10" required></textarea><br>
+
+    <label><strong>Upload Resume (.docx or .pdf):</strong></label>
+    <input type="file" name="resume" accept=".pdf,.docx" required><br>
+
+    <button type="submit">Analyze</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    const form = document.getElementById('matchForm');
+    const result = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      result.innerHTML = "<p><em>Analyzing resume... Please wait.</em></p>";
+
+      try {
+        const res = await fetch('http://127.0.0.1:5000/analyze', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+
+        result.innerHTML = `
+          <h3>📊 Match Summary</h3>
+          <p><strong>✅ Overall Match:</strong> ${data.overall_match_percent}%</p>
+          <p><strong>🎯 Exact Match Score:</strong> ${data.word_match_score}%</p>
+          <p><strong>🧠 Synonym/Semantic Match:</strong> ${data.synonym_semantic_match_score}%</p>
+          <p><strong>📚 Concept Match Score:</strong> ${data.concept_score}%</p>
+
+          <h4>✅ Matched Keywords (Exact)</h4>
+          <p>${data.matched_keywords.join(', ') || 'None'}</p>
+
+          <h4>🧠 Soft Matched Keywords (Synonym/Semantic)</h4>
+          <p>${data.soft_matched_keywords.join(', ') || 'None'}</p>
+
+          <h4>❌ Missing Keywords (High-Impact Only)</h4>
+          <p>${data.missing_keywords.join(', ') || 'None'}</p>
+
+          <h4>✅ Matched Concepts</h4>
+          <table>
+            <tr><th>Concept</th><th>Evidence</th><th>Description</th></tr>
+            ${data.matched_concepts_detailed.map(item =>
+              `<tr>
+                <td class="success">${item.concept}</td>
+                <td>${item.evidence}</td>
+                <td>${item.description}</td>
+              </tr>`).join('')}
+          </table>
+
+          <h4>❌ Missing Concepts</h4>
+          <table>
+            <tr><th>Concept</th><th>Reason</th></tr>
+            ${data.missing_concepts_detailed.map(item =>
+              `<tr>
+                <td class="missing">${item.concept}</td>
+                <td>${item.note}</td>
+              </tr>`).join('')}
+          </table>
+        `;
+      } catch (err) {
+        result.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      }
+    });
+  </script>
+</body>
+</html>
