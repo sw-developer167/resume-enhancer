@@ -4,3 +4,4 @@ docx2txt==0.9
 nltk==3.8.1
 sentence-transformers==2.2.2
 spacy==3.6.1
+Flask-Cors==3.0.10
